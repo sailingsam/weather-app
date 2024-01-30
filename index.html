@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mausam.Mitra- No Stress, Just Weather Impress</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Mausam Mitra</h1>
+    </div>
+
+    <div class="background"></div>
+    <div class="overlay"></div>
+
+
+    <button onclick="toggleTheme()" class="theme-switch-btn">Dark Mode</button>
+
+
+
+    <div class="card">
+        <div class="search">
+            <input id="cityInput" type="text" placeholder="Enter City Name" spellcheck="false">
+            <button><img src="./images/search.png" alt="search"></button>
+        </div>
+        <div class="error">
+            <p>Invalid city name!</p>
+        </div>
+        <div class="weather">
+            <img src="./images/clear.png" alt="icon" class="weather-icon">
+            <h1 class="temp">deg°c</h1>
+            <h2 class="city">city</h2>
+            <div class="details">
+                <div class="col">
+                    <img src="./images/humidity.png" alt="details-icon">
+                    <div>
+                        <div class="humidity">50%</div>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <img src="./images/wind.png" alt="details-icon">
+                    <div>
+                        <div class="wind">50 km/h</div>
+                        <p>Wind Speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const apiKey = "ac0ed1198f93036aebb33f211946e18d";
+        const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+        const searchBox = document.querySelector(".search input");
+        const searchBtn = document.querySelector(".search button");
+        const weatherIcon = document.querySelector(".weather-icon");
+        const background = document.querySelector(".background");
+        const overlay = document.querySelector(".overlay");
+
+        async function checkWeather(city) {
+            const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+
+            if (response.status == 404) {
+                document.querySelector(".error").style.display = "block";
+                document.querySelector(".weather").style.display = "none";
+                overlay.className = "overlay"; // Reset overlay for error case
+                background.style.backgroundImage = "url('./bg.jpg')";
+            } else {
+                var data = await response.json();
+
+                document.querySelector(".city").innerHTML = data.name;
+                document.querySelector(".temp").innerHTML = data.main.temp + "°c";
+                document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                document.querySelector(".wind").innerHTML = data.wind.speed + " km/hr";
+
+                setWeatherIcon(data.weather[0].main); // Set the weather icon
+                setWeatherBackground(data.weather[0].main); // Set the background overlay
+
+                document.querySelector(".weather").style.display = "block";
+                document.querySelector(".error").style.display = "none";
+            }
+        }
+
+        function setWeatherIcon(weatherCondition) {
+            const weatherIcon = document.querySelector(".weather-icon");
+
+            switch (weatherCondition) {
+                case "Clear":
+                    weatherIcon.src = "images/clear.png";
+                    break;
+                case "Clouds":
+                    weatherIcon.src = "images/clouds.png";
+                    break;
+                case "Rain":
+                    weatherIcon.src = "images/rain.png";
+                    break;
+                case "Drizzle":
+                    weatherIcon.src = "images/drizzle.png";
+                    break;
+                case "Mist":
+                    weatherIcon.src = "images/mist.png";
+                    break;
+                // Add more cases for different weather conditions...
+
+                default:
+                    // Provide a default icon or handle it accordingly
+                    break;
+            }
+        }
+
+        function setWeatherBackground(weatherCondition) {
+
+            switch (weatherCondition) {
+                case "Clear":
+                    overlay.className = "overlay sunny-overlay";
+                    break;
+                case "Clouds":
+                    overlay.className = "overlay cloudy-overlay";
+                    break;
+                case "Rain":
+                    overlay.className = "overlay rainy-overlay";
+                    break;
+                // Add more cases for different weather conditions...
+
+                default:
+                    overlay.className = "overlay";
+                    break;
+            }
+        }
+
+        searchBtn.addEventListener("click", () => {
+            checkWeather(searchBox.value);
+        });
+
+        const cityInput = document.getElementById("cityInput");
+
+        // Add an event listener for 'keyup' on the input field
+        cityInput.addEventListener("keyup", (event) => {
+            // Check if the pressed key is 'Enter' (key code 13)
+            if (event.key === "Enter") {
+                // Trigger the checkWeather function
+                checkWeather(cityInput.value);
+            }
+        });
+
+        searchBtn.addEventListener("click", () => {
+            checkWeather(searchBox.value);
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeSwitchBtn = document.querySelector(".theme-switch-btn");
+
+            body.classList.toggle("dark-theme");
+
+            // Update button text based on the current theme
+            if (body.classList.contains("dark-theme")) {
+                themeSwitchBtn.textContent = "Light Mode";
+            } else {
+                themeSwitchBtn.textContent = "Dark Mode";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
